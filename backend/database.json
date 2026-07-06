@@ -1,0 +1,13 @@
+{
+  "leads": [],
+  "notes": [],
+  "activity_log": [],
+  "users": [
+    {
+      "id": 1783316319918,
+      "username": "admin",
+      "password": "$2a$10$/z1uLoWakBqeU9FqeYAIoO/sUB0a4O8GCxJPHVpHdSF44JnwDj6ou",
+      "role": "admin"
+    }
+  ]
+}
