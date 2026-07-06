@@ -8,7 +8,7 @@ const AnalyticsDashboard = ({ leads = [], showToast, currency = '$' }) => {
   const totalLeads = leads.length;
   const convertedLeads = leads.filter(l => l.status === 'converted').length;
   const lostLeads = leads.filter(l => l.status === 'lost').length;
-  const totalRevenue = leads.filter(l => l.status === 'converted').reduce((sum, l) => sum + (l.value || 0), 0);
+  const totalRevenue = leads.filter(l => l.status === 'converted').reduce((sum, l) => sum + (parseFloat(l.value) || 0), 0);
   const conversionRate = totalLeads > 0 ? Math.round((convertedLeads / totalLeads) * 100) : 0;
 
   // Render Charts on Canvas
@@ -82,11 +82,11 @@ const AnalyticsDashboard = ({ leads = [], showToast, currency = '$' }) => {
       let startAngle = 0;
       const centerX = w / 3;
       const centerY = h / 2;
-      const radius = Math.min(centerX, centerY) - 15;
+      const radius = Math.max(Math.min(centerX, centerY) - 15, 0);
 
       counts.forEach((item, idx) => {
         const sliceAngle = (item.count / totalCounts) * Math.PI * 2;
-        if (sliceAngle === 0) return;
+        if (sliceAngle === 0 || radius <= 0) return;
 
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
