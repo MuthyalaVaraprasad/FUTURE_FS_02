@@ -18,12 +18,17 @@ let data = {
 // Load database from file
 function loadDb() {
   try {
-    if (fs.existsSync(dbPath)) {
-      const raw = fs.readFileSync(dbPath, 'utf8');
-      data = JSON.parse(raw);
-    } else {
-      saveDb();
+    if (!fs.existsSync(dbPath)) {
+      const templatePath = path.join(__dirname, 'database.json');
+      if (fs.existsSync(templatePath)) {
+        fs.copyFileSync(templatePath, dbPath);
+        console.log("[DATABASE] Copied template database.json to /tmp/database.json");
+      } else {
+        saveDb();
+      }
     }
+    const raw = fs.readFileSync(dbPath, 'utf8');
+    data = JSON.parse(raw);
   } catch (e) {
     console.error("Error loading JSON database:", e);
   }
@@ -46,7 +51,9 @@ const query = {
     // 1. SELECT * FROM users WHERE username = ?
     if (cleanSql.includes('SELECT * FROM users WHERE username = ?')) {
       const username = params[0];
-      return data.users.find(u => u.username === username) || null;
+      const found = data.users.find(u => u.username === username) || null;
+      console.log(`[DEBUG query.get] users count: ${data.users.length}, queried: ${username}, found: ${found ? 'yes' : 'no'}`);
+      return found;
     }
     
     // 2. SELECT id, username, role FROM users WHERE id = ?
