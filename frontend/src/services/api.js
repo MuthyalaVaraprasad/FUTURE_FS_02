@@ -1,4 +1,6 @@
-const API_URL = 'http://127.0.0.1:5000/api';
+const API_URL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://127.0.0.1:5000/api'
+  : '/api';
 
 // Helper to get headers
 function getHeaders() {

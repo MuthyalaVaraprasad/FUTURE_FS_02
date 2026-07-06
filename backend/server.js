@@ -31,18 +31,33 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong on the server!' });
 });
 
-// Initialize database and start listening
+// Auto-initialize SQLite database schema inside serverless functions
+let dbInitialized = false;
+app.use(async (req, res, next) => {
+  if (!dbInitialized) {
+    try {
+      await initDb();
+      dbInitialized = true;
+    } catch (error) {
+      console.error('Failed to initialize database on request:', error);
+    }
+  }
+  next();
+});
+
+// Initialize database and start listening for local development
 async function startServer() {
   try {
-    console.log('Initializing SQLite database...');
-    await initDb();
-    console.log('Database tables successfully initialized.');
-    
-    app.listen(PORT, () => {
-      console.log(`==========================================================`);
-      console.log(`  CRM Backend Server running on http://localhost:${PORT}`);
-      console.log(`==========================================================`);
-    });
+    if (!process.env.VERCEL) {
+      console.log('Initializing SQLite database locally...');
+      await initDb();
+      dbInitialized = true;
+      app.listen(PORT, () => {
+        console.log(`==========================================================`);
+        console.log(`  CRM Backend Server running on http://localhost:${PORT}`);
+        console.log(`==========================================================`);
+      });
+    }
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
@@ -50,3 +65,5 @@ async function startServer() {
 }
 
 startServer();
+
+module.exports = app;
