@@ -69,12 +69,30 @@ const query = {
       return data.leads.find(l => l.id === id) || null;
     }
 
-    // 4. SELECT COUNT(*) as count FROM leads
+    // 4. SELECT COUNT(*) as total, SUM(CASE WHEN status = 'converted' ... ) FROM leads (Dashboard stats counts)
+    if (cleanSql.includes("SUM(CASE WHEN status = 'converted' THEN 1 ELSE 0 END) as converted")) {
+      const total = data.leads.length;
+      const converted = data.leads.filter(l => l.status === 'converted').length;
+      const new_leads = data.leads.filter(l => l.status === 'new').length;
+      const contacted = data.leads.filter(l => l.status === 'contacted').length;
+      const proposals = data.leads.filter(l => l.status === 'proposal').length;
+      return { total, converted, new_leads, contacted, proposals };
+    }
+
+    // 5. SELECT SUM(value) as total_value, SUM(value * ...) FROM leads (Dashboard stats revenue)
+    if (cleanSql.includes("SUM(value * (probability / 100.0)) as weighted_pipeline")) {
+      const total_value = data.leads.reduce((s, l) => s + (parseFloat(l.value) || 0), 0);
+      const weighted_pipeline = data.leads.reduce((s, l) => s + ((parseFloat(l.value) || 0) * ((parseInt(l.probability) || 20) / 100)), 0);
+      const actual_revenue = data.leads.filter(l => l.status === 'converted').reduce((s, l) => s + (parseFloat(l.value) || 0), 0);
+      return { total_value, weighted_pipeline, actual_revenue };
+    }
+
+    // 6. SELECT COUNT(*) as count FROM leads
     if (cleanSql.includes('SELECT COUNT(*) as count FROM leads') || cleanSql.includes('SELECT COUNT(id) as count FROM leads')) {
       return { count: data.leads.length };
     }
 
-    // 5. SELECT SUM(value) as sum FROM leads WHERE status = 'converted'
+    // 7. SELECT SUM(value) as sum FROM leads WHERE status = 'converted'
     if (cleanSql.includes("SELECT SUM(value) as sum FROM leads WHERE status = 'converted'")) {
       const sum = data.leads.filter(l => l.status === 'converted').reduce((s, l) => s + (parseFloat(l.value) || 0), 0);
       return { sum };
@@ -122,7 +140,22 @@ const query = {
       return Object.keys(groups).map(k => ({ status: k, count: groups[k] }));
     }
 
-    // 5. Monthly Trend
+    // 5. strftime('%Y-%m', created_at) as month, COUNT(*), SUM(value) as monthly_value FROM leads
+    if (cleanSql.includes("strftime('%Y-%m', created_at) as month") || cleanSql.includes("monthly_value")) {
+      const groups = {};
+      data.leads.forEach(l => {
+        const date = new Date(l.created_at || Date.now());
+        const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        if (!groups[month]) {
+          groups[month] = { month, count: 0, monthly_value: 0 };
+        }
+        groups[month].count += 1;
+        groups[month].monthly_value += parseFloat(l.value) || 0;
+      });
+      return Object.keys(groups).sort().map(k => groups[k]).slice(0, 6);
+    }
+
+    // 6. SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count FROM leads (Alternative format)
     if (cleanSql.includes('strftime') || cleanSql.includes('month')) {
       const groups = {};
       data.leads.forEach(l => {
@@ -133,9 +166,59 @@ const query = {
       return Object.keys(groups).sort().map(k => ({ month: k, count: groups[k] }));
     }
 
-    // 6. SELECT * FROM leads
+    // 7. SELECT * FROM leads (Fetch leads with filter, search and sort parsing)
     if (cleanSql.includes('SELECT * FROM leads') || cleanSql.includes('SELECT id, name, email')) {
-      return data.leads;
+      let result = [...data.leads];
+      let paramIdx = 0;
+
+      if (cleanSql.includes('name LIKE ? OR email LIKE ?')) {
+        const rawSearchVal = params[paramIdx] || '';
+        const searchVal = rawSearchVal.replace(/%/g, '').toLowerCase();
+        result = result.filter(l => 
+          (l.name && l.name.toLowerCase().includes(searchVal)) ||
+          (l.email && l.email.toLowerCase().includes(searchVal)) ||
+          (l.company && l.company.toLowerCase().includes(searchVal)) ||
+          (l.tags && l.tags.toLowerCase().includes(searchVal))
+        );
+        paramIdx += 4;
+      }
+      
+      if (cleanSql.includes('AND status = ?')) {
+        const statusVal = params[paramIdx];
+        result = result.filter(l => l.status === statusVal);
+        paramIdx += 1;
+      }
+      
+      if (cleanSql.includes('AND source = ?')) {
+        const sourceVal = params[paramIdx];
+        result = result.filter(l => l.source === sourceVal);
+        paramIdx += 1;
+      }
+
+      // Handle ORDER BY sorting dynamically
+      const matchSort = cleanSql.match(/ORDER BY (\w+) (ASC|DESC)/i);
+      if (matchSort) {
+        const col = matchSort[1];
+        const isAsc = matchSort[2].toUpperCase() === 'ASC';
+        result.sort((a, b) => {
+          let valA = a[col];
+          let valB = b[col];
+          
+          if (col === 'value' || col === 'probability') {
+            valA = parseFloat(valA) || 0;
+            valB = parseFloat(valB) || 0;
+          } else {
+            valA = (valA || '').toString().toLowerCase();
+            valB = (valB || '').toString().toLowerCase();
+          }
+
+          if (valA < valB) return isAsc ? -1 : 1;
+          if (valA > valB) return isAsc ? 1 : -1;
+          return 0;
+        });
+      }
+
+      return result;
     }
 
     console.warn("Unmatched SQL ALL query:", sql, params);
