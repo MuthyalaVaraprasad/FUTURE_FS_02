@@ -4,7 +4,6 @@ import Dashboard from './components/Dashboard';
 import LeadTable from './components/LeadTable';
 import LeadProfile from './components/LeadProfile';
 import FollowupsDashboard from './components/FollowupsDashboard';
-import AnalyticsDashboard from './components/AnalyticsDashboard';
 import NotificationsDashboard from './components/NotificationsDashboard';
 import TeamDashboard from './components/TeamDashboard';
 import SettingsDashboard from './components/SettingsDashboard';
@@ -328,14 +327,6 @@ const App = () => {
           <FollowupsDashboard
             leads={leads}
             showToast={showToast}
-          />
-        );
-      case 'analytics':
-        return (
-          <AnalyticsDashboard
-            leads={leads}
-            showToast={showToast}
-            currency={currency}
           />
         );
       case 'notifications':
