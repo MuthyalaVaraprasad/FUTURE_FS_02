@@ -1,6 +1,8 @@
 # FutureCRM - Intelligent Client Lead Management System (Mini CRM)
 
-Welcome to **FutureCRM**, a high-fidelity, visually stunning Client Lead Management System (Mini CRM) built as a full-stack MERN-style web application. The application is styled with a premium **3D Portfolio & Glassmorphic** theme featuring dynamic mouse parallax tilts, connecting network particle backgrounds, real-time metrics gauges, and canvas-based analytics.
+🚀 **Live Production URL:** [https://crm-five-puce.vercel.app/](https://crm-five-puce.vercel.app/)
+
+Welcome to **FutureCRM**, a high-fidelity, visually stunning Client Lead Management System (Mini CRM) built as a full-stack MERN-style web application and deployed as a serverless monorepo on Vercel. The application is styled with a premium **3D Portfolio & Glassmorphic** theme featuring dynamic mouse parallax tilts, connecting network particle backgrounds, real-time metrics gauges, and active 3D view transitions.
 
 Designed for freelancers, digital agencies, and startups, FutureCRM streamlines client ingestion, deal stage transitions, follow-up calendars, note tracking, and financial projections.
 
@@ -15,9 +17,9 @@ If you are on Windows, simply double-click the **`run.bat`** file in the root of
 
 ---
 
-## 🛠️ Manual Installation & Launch
+## 🛠️ Local Installation & Launch
 
-To install dependencies and start both the frontend and backend servers manually, run the following commands from the root directory:
+To install dependencies and start both the frontend and backend servers locally, run the following commands from the root directory:
 
 ### 1. Install all dependencies
 ```bash
@@ -29,7 +31,7 @@ npm run install:all
 ```bash
 npm run dev
 ```
-*(This runs both the React client and Node/Express server concurrently).*
+*(Runs both the React client on port 5173 and Node/Express server on port 5000 concurrently).*
 
 ---
 
@@ -65,19 +67,20 @@ A fixed action button (FAB) `🤖` positioned at the bottom-right of the viewpor
 *   **Reports (5 features):** Exporters for *Weekly*, *Monthly*, *Sales Summary*, *Ingestion Channels*, and direct download links.
 *   **Utility (2 features):** Close buttons and context switcher dropdown.
 
-### ⚙️ 3. Settings & Profile Dashboard (13 Advanced Features)
+### ⚙️ 3. Settings & Dashboard Architecture
+FutureCRM features 7 distinct dashboard modules (Executive, Kanban, Lead List, Analytics, Settings, Profile, & Security):
 *   **Profile Details Form:** Edit admin name, billing email, and contact phone.
 *   **Profile Completeness Progress Circle:** Visual indicator tracking complete admin profile details.
-*   **Profile Avatar Selector:** Choose custom admin avatar tags (A, ADM, SYS, MGR).
 *   **Change Password Form:** Update database passwords with confirmation matching rules.
-*   **Two-Factor (2FA) Checkbox:** Toggle secure 2-step logins.
 *   **Active Login Sessions Log:** Audits active sessions list, tracking IPs, browsers, systems, and locations.
-*   **Branding Editor Form:** Update organization name, support emails, and contact profiles.
 *   **Global Currency Sign Converter:** Instantly switch currencies across the entire application (USD, EUR, GBP, INR).
 *   **Target Sales Goal Tracker:** Adjust target metrics to calculate pipeline achievement percentages.
 *   **Database JSON Backup Exporter:** Download lead database records locally.
 *   **SQLite Database Operations:** Seed SQLite database or wipe leads.
 *   **Server Health Panel:** Monitors CPU/Memory performance status on the backend.
+
+### 🔄 4. Unified Back Navigation
+*   **Instant Back Button:** Every dashboard includes a styled `← Back to Executive Dashboard` button at the top, simplifying app navigation and returns.
 
 ---
 
@@ -85,13 +88,14 @@ A fixed action button (FAB) `🤖` positioned at the bottom-right of the viewpor
 
 ```
 FUTURE_FS_02/
-├── package.json               # Root manager for concurrent executions
+├── vercel.json                # Unified monorepo deployment config for Vercel
+├── package.json               # Root manager for concurrent local execution
 ├── README.md                  # Detailed walkthrough & setup guides
 ├── run.bat                    # Windows 1-click startup automation batch script
 ├── backend/                   # Node.js + Express API Server
 │   ├── package.json           # Backend dependencies configuration
-│   ├── server.js              # API bootloader & SQLite initialization
-│   ├── database.js            # SQLite database schema creation
+│   ├── server.js              # API bootloader & serverless exports
+│   ├── database.js            # Pure JS JSON-backed Database Emulator
 │   └── routes/
 │       ├── auth.js            # Router for logins
 │       └── leads.js           # Router for CRUD, timelines, notes, & metrics
