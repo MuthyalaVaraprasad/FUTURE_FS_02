@@ -240,7 +240,10 @@ const query = {
 
     // 2. INSERT INTO leads
     if (cleanSql.includes('INSERT INTO leads')) {
-      const [name, email, phone, company, source, value, probability, tags] = params;
+      const [
+        name, email, phone, company, source, status, value, probability, tags, followup_date,
+        bant_budget, bant_authority, bant_need, bant_timeline
+      ] = params;
       const newId = Date.now() + Math.floor(Math.random() * 1000);
       
       const newLead = {
@@ -250,15 +253,15 @@ const query = {
         phone: phone || '',
         company: company || '',
         source: source || 'Website',
-        status: 'new',
+        status: status || 'new',
         value: parseFloat(value) || 0,
         probability: parseInt(probability) || 20,
         tags: tags || '',
-        followup_date: '',
-        bant_budget: 0,
-        bant_authority: 0,
-        bant_need: 0,
-        bant_timeline: 0,
+        followup_date: followup_date || '',
+        bant_budget: parseInt(bant_budget) || 0,
+        bant_authority: parseInt(bant_authority) || 0,
+        bant_need: parseInt(bant_need) || 0,
+        bant_timeline: parseInt(bant_timeline) || 0,
         created_at: new Date().toISOString()
       };
       
