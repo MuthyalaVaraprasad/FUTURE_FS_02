@@ -98,7 +98,7 @@ body {
   max-width: 1400px;
   width: 100%;
   position: relative;
-  z-index: 1;
+  z-index: auto;
   transition: padding-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1954,7 +1954,7 @@ body {
   background: rgba(5, 7, 15, 0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  z-index: 200;
+  z-index: 2000;
   display: flex;
   justify-content: flex-end;
 }
@@ -2656,17 +2656,21 @@ body {
   background: rgba(5, 7, 15, 0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  z-index: 250;
+  z-index: 3000;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 20px;
+  padding: 40px 20px;
+  overflow-y: auto;
 }
 
 .modal-card {
   width: 100%;
   padding: 30px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  margin: auto 0;
 }
 
 .max-width-600 {
@@ -3552,7 +3556,7 @@ body {
 
   .modal-card {
     width: 95% !important;
-    margin: 10px auto;
+    margin: auto;
   }
 }
 
@@ -3602,5 +3606,42 @@ body {
 .floating-ai-btn:active {
   transform: scale(0.9) rotate(15deg) !important;
   box-shadow: 0 0 15px rgba(0, 243, 255, 0.3) !important;
+}
+
+/* Responsive AI Assistant Drawer overlay styling */
+.ai-assistant-drawer {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  bottom: 24px;
+  width: 380px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 243, 255, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(0, 243, 255, 0.15);
+  z-index: 4000;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 500px) {
+  .ai-assistant-drawer {
+    right: 16px;
+    left: 16px;
+    width: auto;
+    top: 76px;
+    bottom: 16px;
+  }
+}
+
+/* Modal Portal root container - creates high stacking context */
+#modal-portal-root {
+  position: relative;
+  z-index: 9999;
 }
 

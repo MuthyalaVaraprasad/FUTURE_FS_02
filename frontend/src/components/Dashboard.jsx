@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import GoalTracker from './GoalTracker';
-import { UsersIcon, RevenueIcon, KanbanIcon, InfoIcon, PlusIcon } from './Icons';
+import { UsersIcon, RevenueIcon, KanbanIcon, InfoIcon, PlusIcon, LoadingIcon } from './Icons';
 
 const Dashboard = ({
   stats,
@@ -352,9 +352,29 @@ const Dashboard = ({
     renderSourceChart();
     renderGrowthChart();
     renderFunnelChart();
+
+    const handleResize = () => {
+      renderSourceChart();
+      renderGrowthChart();
+      renderFunnelChart();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, [stats]);
 
-  if (!stats) return <div className="loading-state">Syncing Dashboard Analytics...</div>;
+  if (!stats) {
+    return (
+      <div className="loading-container" style={{ minHeight: '65vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+        <LoadingIcon className="animate-spin" style={{ width: '40px', height: '40px', color: 'var(--accent-cyan)' }} />
+        <div style={{ color: 'var(--text-sub)', fontSize: '13px', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 'bold' }}>
+          Syncing Dashboard Analytics...
+        </div>
+      </div>
+    );
+  }
 
   // Unlocked milestone badges
   const actualRevenue = stats.actualRevenue;

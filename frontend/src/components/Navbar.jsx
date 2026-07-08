@@ -66,6 +66,9 @@ const Navbar = ({
 
   const handleNavClick = (viewId) => {
     onViewChange(viewId);
+    if (window.innerWidth < 900 && sidebarExpanded) {
+      onToggleSidebar();
+    }
   };
 
   return (

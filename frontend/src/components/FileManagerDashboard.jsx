@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 const FileManagerDashboard = ({ leads = [], showToast }) => {
   const [files, setFiles] = useState([
@@ -150,7 +151,7 @@ const FileManagerDashboard = ({ leads = [], showToast }) => {
       </div>
 
       {/* File Preview Modal */}
-      {activePreviewFile && (
+      {activePreviewFile && createPortal(
         <div className="modal-backdrop" onClick={() => setActivePreviewFile(null)}>
           <div className="glass-panel modal-card max-width-600 animate-slide-up" onClick={(e) => e.stopPropagation()} style={{ border: '1px solid var(--accent-cyan)', boxShadow: '0 0 30px rgba(0, 243, 255, 0.2)' }}>
             <div className="modal-header">
@@ -181,7 +182,8 @@ const FileManagerDashboard = ({ leads = [], showToast }) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.getElementById('modal-portal-root') || document.body
       )}
     </div>
   );

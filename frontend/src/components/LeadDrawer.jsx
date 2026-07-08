@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from '../services/api';
 import { TrashIcon, CalendarIcon, PlusIcon, LoadingIcon } from './Icons';
 
@@ -93,7 +94,7 @@ const LeadDrawer = ({ leadId, onClose, onLeadUpdated, showToast, currency = '$' 
     if (bant.authority) score += 10;
     if (bant.need) score += 10;
     if (bant.timeline) score += 10;
-    score += Math.round((lead.probability || 0) * 0.2);
+    score += Math.round((lead?.probability || 0) * 0.2);
     score += Math.min(notes.length * 2.5, 10);
     return Math.min(score, 100);
   };
@@ -153,53 +154,62 @@ const LeadDrawer = ({ leadId, onClose, onLeadUpdated, showToast, currency = '$' 
 
   // Draw Audio Waveform on Canvas
   useEffect(() => {
-    const canvas = waveformRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = canvas.offsetWidth * dpr;
-    canvas.height = canvas.offsetHeight * dpr;
-    ctx.scale(dpr, dpr);
+    const drawWaveform = () => {
+      const canvas = waveformRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      ctx.scale(dpr, dpr);
 
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-    ctx.clearRect(0, 0, w, h);
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      ctx.clearRect(0, 0, w, h);
 
-    const barWidth = 3;
-    const gap = 2;
-    const barCount = Math.floor(w / (barWidth + gap));
-    
-    // Generate deterministic height values based on index to create wave shapes
-    const heights = [];
-    for (let i = 0; i < barCount; i++) {
-      const angle = (i / barCount) * Math.PI * 4;
-      const heightVal = Math.abs(Math.sin(angle) * 0.45 + Math.cos(angle * 2) * 0.3 + Math.sin(angle * 6) * 0.1) * (h - 12) + 6;
-      heights.push(heightVal);
-    }
-
-    // Draw bars
-    for (let i = 0; i < barCount; i++) {
-      const x = i * (barWidth + gap);
-      const barHeight = heights[i];
-      const y = (h - barHeight) / 2;
-
-      // Determine if this bar is before or after progress line
-      const progressIndex = (currentTime / 100) * barCount;
-      const isPast = i <= progressIndex;
-
-      if (isPast) {
-        ctx.fillStyle = 'var(--accent-pink)';
-        ctx.shadowBlur = 4;
-        ctx.shadowColor = 'var(--accent-pink)';
-      } else {
-        ctx.fillStyle = 'rgba(0, 243, 255, 0.25)';
-        ctx.shadowBlur = 0;
+      const barWidth = 3;
+      const gap = 2;
+      const barCount = Math.floor(w / (barWidth + gap));
+      
+      // Generate deterministic height values based on index to create wave shapes
+      const heights = [];
+      for (let i = 0; i < barCount; i++) {
+        const angle = (i / barCount) * Math.PI * 4;
+        const heightVal = Math.abs(Math.sin(angle) * 0.45 + Math.cos(angle * 2) * 0.3 + Math.sin(angle * 6) * 0.1) * (h - 12) + 6;
+        heights.push(heightVal);
       }
 
-      ctx.beginPath();
-      ctx.roundRect(x, y, barWidth, barHeight, 1.5);
-      ctx.fill();
-    }
+      // Draw bars
+      for (let i = 0; i < barCount; i++) {
+        const x = i * (barWidth + gap);
+        const barHeight = heights[i];
+        const y = (h - barHeight) / 2;
+
+        // Determine if this bar is before or after progress line
+        const progressIndex = (currentTime / 100) * barCount;
+        const isPast = i <= progressIndex;
+
+        if (isPast) {
+          ctx.fillStyle = 'var(--accent-pink)';
+          ctx.shadowBlur = 4;
+          ctx.shadowColor = 'var(--accent-pink)';
+        } else {
+          ctx.fillStyle = 'rgba(0, 243, 255, 0.25)';
+          ctx.shadowBlur = 0;
+        }
+
+        ctx.beginPath();
+        ctx.roundRect(x, y, barWidth, barHeight, 1.5);
+        ctx.fill();
+      }
+    };
+
+    drawWaveform();
+
+    window.addEventListener('resize', drawWaveform);
+    return () => {
+      window.removeEventListener('resize', drawWaveform);
+    };
   }, [currentTime]);
 
   if (!lead) {
@@ -861,7 +871,7 @@ const LeadDrawer = ({ leadId, onClose, onLeadUpdated, showToast, currency = '$' 
       </div>
 
       {/* AUXILIARY MODAL 1: Contract Agreement Generator */}
-      {showContractModal && (
+      {showContractModal && createPortal(
         <div className="modal-backdrop" onClick={(e) => e.stopPropagation()}>
           <div className="glass-panel modal-card max-width-600 animate-slide-up">
             <div className="modal-header">
@@ -900,11 +910,12 @@ ${lead.name} (Prefilled online sign)`}
               📋 Copy Service Agreement
             </button>
           </div>
-        </div>
+        </div>,
+        document.getElementById('modal-portal-root') || document.body
       )}
 
       {/* AUXILIARY MODAL 2: Deposit Invoice Generator */}
-      {showInvoiceModal && (
+      {showInvoiceModal && createPortal(
         <div className="modal-backdrop" onClick={(e) => e.stopPropagation()}>
           <div className="glass-panel modal-card max-width-600 animate-slide-up">
             <div className="modal-header">
@@ -938,7 +949,8 @@ Thank you for your business!`}
               📋 Copy Invoice Details
             </button>
           </div>
-        </div>
+        </div>,
+        document.getElementById('modal-portal-root') || document.body
       )}
     </div>
   );

@@ -21,16 +21,6 @@ app.get('/', (req, res) => {
   res.json({ message: 'Future Interns Client Lead Management System (Mini CRM) API is live!' });
 });
 
-// Register routers
-app.use('/api/auth', authRoutes);
-app.use('/api/leads', leadRoutes);
-
-// Global Error Handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong on the server!' });
-});
-
 // Auto-initialize SQLite database schema inside serverless functions
 let dbInitialized = false;
 app.use(async (req, res, next) => {
@@ -43,6 +33,16 @@ app.use(async (req, res, next) => {
     }
   }
   next();
+});
+
+// Register routers
+app.use('/api/auth', authRoutes);
+app.use('/api/leads', leadRoutes);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong on the server!' });
 });
 
 // Initialize database and start listening for local development

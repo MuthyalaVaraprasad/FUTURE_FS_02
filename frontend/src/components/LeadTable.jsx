@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { SearchIcon, PlusIcon, TrashIcon, EditIcon, ExportIcon, ImportIcon, InfoIcon } from './Icons';
 
 const LeadTable = ({
@@ -737,7 +738,7 @@ const LeadTable = ({
       )}
 
       {/* MODAL 1: Create Lead Form Wizard */}
-      {showCreateModal && (
+      {showCreateModal && createPortal(
         <div className="modal-backdrop">
           <div className="glass-panel modal-card max-width-600 animate-slide-up">
             <div className="modal-header">
@@ -759,7 +760,7 @@ const LeadTable = ({
                 <div className="form-group">
                   <label>Email Address *</label>
                   <input
-                    type="email"
+                    type="text"
                     name="email"
                     required
                     value={newLead.email}
@@ -863,11 +864,12 @@ const LeadTable = ({
               </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.getElementById('modal-portal-root') || document.body
       )}
 
       {/* MODAL 2: Bulk CSV Import Wizard with Pre-Scan Validation */}
-      {showImportModal && (
+      {showImportModal && createPortal(
         <div className="modal-backdrop">
           <div className="glass-panel modal-card max-width-600 animate-slide-up">
             <div className="modal-header">
@@ -926,11 +928,12 @@ const LeadTable = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.getElementById('modal-portal-root') || document.body
       )}
 
       {/* MODAL 3: Lead Comparative Matrix Modal */}
-      {showCompareModal && compareLeadsArray.length === 2 && (
+      {showCompareModal && compareLeadsArray.length === 2 && createPortal(
         <div className="modal-backdrop">
           <div className="glass-panel modal-card max-width-600 animate-slide-up">
             <div className="modal-header">
@@ -987,11 +990,12 @@ const LeadTable = ({
               </table>
             </div>
           </div>
-        </div>
+        </div>,
+        document.getElementById('modal-portal-root') || document.body
       )}
 
       {/* MODAL 4: JSON Backup / Restore Cabinet */}
-      {showBackupModal && (
+      {showBackupModal && createPortal(
         <div className="modal-backdrop">
           <div className="glass-panel modal-card max-width-600 animate-slide-up">
             <div className="modal-header">
@@ -1022,10 +1026,12 @@ const LeadTable = ({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.getElementById('modal-portal-root') || document.body
       )}
+
       {/* MODAL 5: Recycle Bin Soft Archive */}
-      {showRecycleBinModal && (
+      {showRecycleBinModal && createPortal(
         <div className="modal-backdrop">
           <div className="glass-panel modal-card max-width-600 animate-slide-up" style={{ border: '1px solid var(--accent-pink)', boxShadow: '0 0 25px rgba(255, 0, 127, 0.15)' }}>
             <div className="modal-header">
@@ -1038,7 +1044,7 @@ const LeadTable = ({
               
               <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {leads.filter(l => l.tags?.includes('Archived')).length === 0 ? (
-                  <div className="empty-notes" style={{ padding: '30px 0', textAlign: 'center' }}>Recycle bin is empty.</div>
+                   <div className="empty-notes" style={{ padding: '30px 0', textAlign: 'center' }}>Recycle bin is empty.</div>
                 ) : (
                   leads.filter(l => l.tags?.includes('Archived')).map(leadItem => (
                     <div 
@@ -1096,7 +1102,8 @@ const LeadTable = ({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.getElementById('modal-portal-root') || document.body
       )}
     </div>
   );

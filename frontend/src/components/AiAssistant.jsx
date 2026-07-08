@@ -125,23 +125,7 @@ const AiAssistant = ({ leads = [], showToast, currency = '$', isOpen, onClose })
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: '80px',
-      right: '24px',
-      bottom: '24px',
-      width: '380px',
-      background: 'rgba(15, 23, 42, 0.95)',
-      backdropFilter: 'blur(20px)',
-      border: '1px solid rgba(0, 243, 255, 0.25)',
-      borderRadius: '16px',
-      boxShadow: '0 0 40px rgba(0, 243, 255, 0.15)',
-      zIndex: 9999,
-      display: 'flex',
-      flexDirection: 'column',
-      color: '#fff',
-      fontFamily: 'Outfit, sans-serif'
-    }} className="animate-slide-up">
+    <div className="ai-assistant-drawer animate-slide-up">
       
       {/* Header */}
       <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

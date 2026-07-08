@@ -1,8 +1,10 @@
 import React from 'react';
 import { RevenueIcon } from './Icons';
 
-const GoalTracker = ({ actualRevenue, targetGoal, onTargetChange }) => {
-  const percentage = Math.min(100, Math.round((actualRevenue / targetGoal) * 100)) || 0;
+const GoalTracker = ({ actualRevenue = 0, targetGoal = 1, onTargetChange }) => {
+  const safeRevenue = actualRevenue || 0;
+  const safeGoal = targetGoal || 1;
+  const percentage = Math.min(100, Math.round((safeRevenue / safeGoal) * 100)) || 0;
   
   // SVG circular properties
   const radius = 60;
@@ -55,7 +57,7 @@ const GoalTracker = ({ actualRevenue, targetGoal, onTargetChange }) => {
               />
             </svg>
             <div className="gauge-text">
-              <span className="gauge-number">${actualRevenue.toLocaleString()}</span>
+              <span className="gauge-number">${safeRevenue.toLocaleString()}</span>
               <span className="gauge-sub">Current Sales</span>
             </div>
           </div>

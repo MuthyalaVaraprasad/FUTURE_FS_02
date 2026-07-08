@@ -523,6 +523,9 @@ const App = () => {
         isOpen={isAiOpen}
         onClose={() => setIsAiOpen(false)}
       />
+
+      {/* Portal root for modals to avoid stacking context issues */}
+      <div id="modal-portal-root"></div>
     </div>
   );
 };
